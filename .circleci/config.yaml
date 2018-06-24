@@ -1,0 +1,69 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/tmp
+    docker:
+      - image: python:3
+    #working_directory: /go/src/github.com/CircleCI-Public/circleci-demo-docker
+    steps:
+      - checkout
+      # ... steps for building/testing app ...
+      - run: 
+          name: Test requirements.
+          command: pip install --no-cache-dir -r requirements.txt
+      
+      # build and push Docker image
+      - setup_remote_docker:   
+          docker_layer_caching: true 
+
+      # use a primary image that already has Docker (recommended)
+      # or install it during a build like we do here
+      - run:
+          name: Install Docker client
+          command: |
+            set -x
+            VER="17.03.0-ce"
+            curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
+            tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+            mv /tmp/docker/* /usr/bin
+
+      # Build and push
+      - run:
+          name: Build and push
+          command: |
+            TAG=$CIRCLE_SHA1
+            docker build -t   recet/webapp-demo:$TAG .      # (4)
+            docker login -u $DOCKER_USER -p $DOCKER_PASS         # (5)
+            docker push recet/webapp-demo:$TAG
+
+  # Start deployment process for gcp.
+  # Install gcp tools 
+  deploy-job:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - run:
+          name: Store Service Account
+          command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+      - run:
+          name:
+          command: |
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud --quiet container clusters get-credentials ${GOOGLE_CLUSTER_NAME}
+      - run:
+          name: Deploy new version of app
+          command: |
+            TAG=$CIRCLE_SHA1
+            kubectl set image deployment/python-helloservice helloservice=recet/python-helloservice:$TAG
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build
+      - deploy-job:
+          requires:
+            - build
