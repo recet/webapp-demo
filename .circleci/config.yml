@@ -3,7 +3,7 @@ jobs:
   test:
     #working_directory: ~/webapp-demo/app
     docker:
-      - image: python:3.6-stretch-browsers
+      - image: python:3.6-slim-stretch
     steps:
       - checkout
       # ... steps for building/testing app ...
@@ -13,7 +13,7 @@ jobs:
   build:
     working_directory: ~/webapp-demo
     docker:
-      - image: python:3.6-stretch-browsers
+      - image: python:3.6-slim-stretch
     steps:
       - checkout
       # build and push Docker image
