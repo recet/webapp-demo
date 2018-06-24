@@ -1,7 +1,7 @@
 version: 2
 jobs:
   test:
-    working_directory: ~/webapp-demo/app
+    #working_directory: ~/webapp-demo/app
     docker:
       - image: python:3
     steps:
@@ -9,7 +9,7 @@ jobs:
       # ... steps for building/testing app ...
       - run: 
           name: Test requirements.
-          command: pip install --no-cache-dir -r requirements.txt
+          command: pip install --no-cache-dir -r app/requirements.txt
   build:
     working_directory: ~/webapp-demo
     docker:
@@ -38,7 +38,7 @@ jobs:
             TAG=$CIRCLE_SHA1
             docker build -t   recet/webapp:$TAG .      # (4)
             docker login -u $DOCKER_USER -p $DOCKER_PASS         # (5)
-            docker push recet/webapp-demo:$TAG
+            docker push recet/webapp:$TAG
 
   # Start deployment process for gcp.
   # Install gcp tools 
@@ -68,7 +68,9 @@ workflows:
   build-test-and-deploy:
     jobs:
       - test
-      - build
+      - build:
+          requires:
+            - test
       - deploy-job:
           requires:
             - build
