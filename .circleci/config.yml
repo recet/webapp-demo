@@ -4,7 +4,7 @@ jobs:
     working_directory: ~/tmp
     docker:
       - image: python:3
-    #working_directory: /go/src/github.com/CircleCI-Public/circleci-demo-docker
+    working_directory: app/
     steps:
       - checkout
       # ... steps for building/testing app ...
