@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: webapp
-        image: recet/webapp:v2
+        image: recet/webapp:v3
         resources:
           requests:
             cpu: 100m
