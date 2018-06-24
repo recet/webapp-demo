@@ -57,7 +57,7 @@ jobs:
           name: Deploy new version of app
           command: |
             TAG=$CIRCLE_SHA1
-            kubectl set image deployment/python-helloservice helloservice=recet/python-helloservice:$TAG
+            kubectl set image deployment/webapp webapp=recet/webapp:$TAG
 
 workflows:
   version: 2
