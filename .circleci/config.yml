@@ -1,17 +1,19 @@
 version: 2
 jobs:
-  build:
-    working_directory: ~/tmp
+  test:
+    working_directory: ~/webapp-demo/app
     docker:
       - image: python:3
     steps:
       - checkout
       # ... steps for building/testing app ...
       - run: 
-          working_directory: ~/webapp-demo/app
           name: Test requirements.
           command: pip install --no-cache-dir -r requirements.txt
-      
+  build:
+    working_directory: ~/webapp-demo
+    steps:
+      - checkout
       # build and push Docker image
       - setup_remote_docker:   
           docker_layer_caching: true 
@@ -29,7 +31,6 @@ jobs:
 
       # Build and push
       - run:
-          working_directory: ~/webapp-demo
           name: Build and push
           command: |
             TAG=$CIRCLE_SHA1
