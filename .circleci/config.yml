@@ -71,6 +71,9 @@ workflows:
       - build:
           requires:
             - test
+      - hold:
+          requires:
+            - test
       - deploy-job:
           requires:
-            - build
+            - hold
