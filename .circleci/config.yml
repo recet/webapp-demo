@@ -12,6 +12,8 @@ jobs:
           command: pip install --no-cache-dir -r requirements.txt
   build:
     working_directory: ~/webapp-demo
+    docker:
+      - image: python:3
     steps:
       - checkout
       # build and push Docker image
